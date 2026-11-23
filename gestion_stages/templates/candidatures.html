@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block content %}<h3>Candidatures</h3>
+<table class="table bg-white"><thead><tr><th>Étudiant</th><th>Offre</th><th>Date</th><th>CV</th><th>Lettre</th><th>État</th><th></th></tr></thead>
+{% for c in cands %}<tr><td>{{ c.etudiant }}</td><td>{{ c.offre }}</td><td>{{ c.date|date:"d/m/Y" }}</td>
+<td><a href="{{ c.cv.url }}">CV</a></td><td><a href="{{ c.lettre.url }}">Lettre</a></td><td>{{ c.get_etat_display }}</td>
+<td>{% if user.role == 'entreprise' and c.etat == 'en_attente' %}
+<form method="post" action="{% url 'candidature_decide' c.pk 'accepter' %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-success">Accepter</button></form>
+<form method="post" action="{% url 'candidature_decide' c.pk 'refuser' %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-danger">Refuser</button></form>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="7" class="text-muted">Aucune candidature.</td></tr>{% endfor %}</table>{% endblock %}

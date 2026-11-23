@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block content %}<h3>Notifications</h3>
+<form method="post" class="mb-3">{% csrf_token %}<label><input type="checkbox" name="notif_email" {% if user.notif_email %}checked{% endif %}> Recevoir aussi par e-mail</label>
+<button class="btn btn-sm btn-brand ms-2">Enregistrer et tout marquer comme lu</button></form>
+<ul class="list-group">{% for n in items %}<li class="list-group-item {% if not n.lu %}fw-bold{% endif %}">{{ n.message }} <small class="text-muted">{{ n.date|date:"d/m H:i" }}</small></li>{% empty %}<li class="list-group-item text-muted">Rien à signaler.</li>{% endfor %}</ul>{% endblock %}

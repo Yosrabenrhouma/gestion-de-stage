@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block content %}<h3>Import de comptes (CSV)</h3>
+<form method="post" enctype="multipart/form-data" class="mb-3" style="max-width:600px">{% csrf_token %}{{ form.as_p }}<button class="btn btn-brand">Importer</button></form>
+{% if rapport %}<table class="table table-sm bg-white"><tr><th>Ligne</th><th>E-mail</th><th>Résultat</th><th>Mot de passe initial</th></tr>
+{% for l,e,r,p in rapport %}<tr><td>{{ l }}</td><td>{{ e }}</td><td>{{ r }}</td><td><code>{{ p }}</code></td></tr>{% endfor %}</table>{% endif %}{% endblock %}

@@ -1,0 +1,2 @@
+{% extends "base.html" %}{% block content %}<h3>Journal des actions sensibles</h3>
+<table class="table table-sm bg-white">{% for l in logs %}<tr><td>{{ l.date|date:"d/m/Y H:i" }}</td><td>{{ l.user }}</td><td>{{ l.action }}</td></tr>{% endfor %}</table>{% endblock %}

@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block content %}<h3>Stages</h3>
+<form class="mb-3"><select name="etat" class="form-select w-auto d-inline" onchange="this.form.submit()"><option value="">Tous les états</option>
+{% for k,v in etats %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></form>
+{% include "_stages_table.html" %}{% endblock %}

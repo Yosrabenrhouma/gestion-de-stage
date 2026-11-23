@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% block content %}<h3>Offres de stage</h3>
+<form class="row g-2 mb-3">
+ <div class="col-md-2"><select name="type" class="form-select"><option value="">Type</option><option value="PFA">PFA</option><option value="ETE">Été</option><option value="PFE">PFE</option></select></div>
+ <div class="col-md-2"><input name="duree" class="form-control" placeholder="Durée max (sem.)" value="{{ g.duree }}"></div>
+ <div class="col-md-3"><input name="domaine" class="form-control" placeholder="Domaine / technologie" value="{{ g.domaine }}"></div>
+ <div class="col-md-3"><input name="lieu" class="form-control" placeholder="Lieu" value="{{ g.lieu }}"></div>
+ <div class="col-md-2"><button class="btn btn-brand w-100">Filtrer</button></div>
+</form>
+<div class="row g-3">{% for o in offres %}<div class="col-md-6"><div class="card h-100"><div class="card-body">
+<h5>{{ o.titre }}</h5><p class="mb-1 text-muted">{{ o.entreprise }} · {{ o.get_type_display }} · {{ o.duree_semaines }} sem. · {{ o.lieu }}</p>
+<p>{{ o.technologies }}</p><a class="btn btn-sm btn-brand" href="{% url 'offre_detail' o.pk %}">Voir / postuler</a>
+</div></div></div>{% empty %}<p class="text-muted">Aucune offre.</p>{% endfor %}</div>{% endblock %}

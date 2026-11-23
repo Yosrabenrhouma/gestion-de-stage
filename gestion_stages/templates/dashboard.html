@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% block content %}
+<h3>Bonjour {{ user }}</h3><p class="text-muted">{{ user.get_role_display }}</p>
+<div class="row g-3 mb-4">
+ {% if a_valider is not None %}<div class="col-md-4"><div class="card"><div class="card-body"><h2>{{ a_valider }}</h2>Entreprises/offres à valider <a href="{% url 'validations' %}">→</a></div></div></div>
+ <div class="col-md-4"><div class="card"><div class="card-body"><h2>{{ sans_convention }}</h2>Stages sans convention signée</div></div></div>{% endif %}
+ {% if nb_sujets is not None %}<div class="col-md-4"><div class="card"><div class="card-body"><h2>{{ nb_sujets }}</h2>Sujets proposés <a href="{% url 'sujets' %}">→</a></div></div></div>{% endif %}
+</div>
+{% if candidatures %}<h5>Mes dernières candidatures</h5><ul>{% for c in candidatures %}<li>{{ c.offre }} – {{ c.get_etat_display }}</li>{% endfor %}</ul>{% endif %}
+<h5>Mes stages</h5>
+{% include "_stages_table.html" with stages=stages %}
+{% endblock %}

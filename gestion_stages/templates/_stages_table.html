@@ -1,0 +1,5 @@
+<div class="table-responsive"><table class="table table-sm bg-white align-middle">
+<thead><tr><th>Étudiant</th><th>Sujet</th><th>Entreprise</th><th>Type</th><th>État</th><th></th></tr></thead>
+{% for s in stages %}<tr><td>{{ s.etudiant }}</td><td>{{ s.sujet }}</td><td>{{ s.entreprise }}</td><td>{{ s.get_type_display }} {{ s.annee }}</td>
+<td><span class="badge text-bg-secondary">{{ s.get_etat_display }}</span></td><td><a href="{% url 'stage_detail' s.pk %}">Ouvrir</a></td></tr>
+{% empty %}<tr><td colspan="6" class="text-muted">Aucun stage.</td></tr>{% endfor %}</table></div>

@@ -1,0 +1,4 @@
+Django>=5.0,<5.3
+reportlab>=4.0
+openpyxl>=3.1
+# Production (PostgreSQL) : psycopg2-binary>=2.9

@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block content %}
+<div class="d-flex justify-content-between"><h3>Statistiques</h3><div><a class="btn btn-sm btn-success" href="?export=xlsx">Excel</a> <a class="btn btn-sm btn-danger" href="?export=pdf">PDF</a></div></div>
+<div class="row g-3 mt-1">
+<div class="col-md-6"><div class="card"><div class="card-header">Par état</div><ul class="list-group list-group-flush">{% for x in par_etat %}<li class="list-group-item d-flex justify-content-between">{{ x.etat }}<b>{{ x.n }}</b></li>{% endfor %}</ul></div></div>
+<div class="col-md-6"><div class="card"><div class="card-header">Par département</div><ul class="list-group list-group-flush">{% for x in par_dept %}<li class="list-group-item d-flex justify-content-between">{{ x.etudiant__departement__nom|default:"—" }}<b>{{ x.n }}</b></li>{% endfor %}</ul></div></div>
+<div class="col-md-6"><div class="card"><div class="card-header">Par entreprise</div><ul class="list-group list-group-flush">{% for x in par_ent %}<li class="list-group-item d-flex justify-content-between">{{ x.entreprise__raison_sociale }}<b>{{ x.n }}</b></li>{% endfor %}</ul></div></div>
+<div class="col-md-6"><div class="card"><div class="card-header">Par période</div><ul class="list-group list-group-flush">{% for x in par_periode %}<li class="list-group-item d-flex justify-content-between">{{ x.annee }} – {{ x.type }}<b>{{ x.n }}</b></li>{% endfor %}</ul></div></div>
+<div class="col-12"><div class="card"><div class="card-header">Étudiants sans stage ({{ sans|length }})</div><ul class="list-group list-group-flush">{% for e in sans %}<li class="list-group-item">{{ e }} – {{ e.departement|default:"" }}</li>{% endfor %}</ul></div></div></div>{% endblock %}

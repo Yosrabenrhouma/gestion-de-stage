@@ -1,0 +1,45 @@
+{% extends "base.html" %}{% block content %}
+<div class="d-flex justify-content-between"><h3>{{ s.sujet }}</h3><span class="badge text-bg-primary fs-6 align-self-start">{{ s.get_etat_display }}</span></div>
+<p class="text-muted">{{ s.etudiant }} · {{ s.entreprise }} · {{ s.get_type_display }} {{ s.annee }} · {{ s.date_debut|default:"?" }} → {{ s.date_fin|default:"?" }}<br>
+Encadrant académique : {{ s.encadrant_acad|default:"non affecté" }} · Tuteur : {{ s.encadrant_pro_nom|default:"-" }}</p>
+<div class="mb-3">
+ {% if user.role == 'responsable' %}<a class="btn btn-sm btn-outline-primary" href="{% url 'stage_gestion' s.pk %}">Affecter / paramètres</a>
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'soutenance' s.pk %}">Planifier la soutenance</a>
+  {% if s.etat == 'valide' %}<form method="post" action="{% url 'stage_demarrer' s.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-success">Démarrer le stage</button></form>{% endif %}{% endif %}
+ {% for t in eval_types %}<a class="btn btn-sm btn-outline-secondary" href="{% url 'evaluation' s.pk %}?t={{ t }}">Évaluer ({{ t }})</a>{% endfor %}
+ {% if user.role == 'responsable' or user.role == 'encadrant' %}<a class="btn btn-sm btn-outline-dark" href="{% url 'document' s.pk 'pv' %}">PV</a>
+  <a class="btn btn-sm btn-outline-dark" href="{% url 'document' s.pk 'attestation' %}">Attestation</a>{% endif %}
+</div>
+
+<div class="card mb-3"><div class="card-header">Convention</div><div class="card-body">
+{% if conv %}État : <b>{{ conv.get_etat_display }}</b> · Étudiant {{ conv.signe_etudiant|date:"d/m/Y"|default:"✗" }} · Entreprise {{ conv.signe_entreprise|date:"d/m/Y"|default:"✗" }} · Établissement {{ conv.signe_etablissement|date:"d/m/Y"|default:"✗" }}<br>
+ <a href="{% url 'convention_pdf' s.pk %}" target="_blank">Aperçu PDF</a>
+ {% if conv.etat == 'brouillon' and user.role == 'responsable' %}<form method="post" action="{% url 'convention_pdf' s.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-brand">Générer et envoyer à la signature</button></form>{% endif %}
+ {% if peut_signer %}<form method="post" action="{% url 'convention_action' s.pk 'signer' %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-success">Signer</button></form>
+ <form method="post" action="{% url 'convention_action' s.pk 'refuser' %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-danger">Refuser</button></form>{% endif %}
+{% else %}<span class="text-muted">Pas encore de convention (sujet non validé).</span>{% endif %}</div></div>
+
+<div class="card mb-3"><div class="card-header">Comptes rendus</div><div class="card-body">
+{% for c in s.comptes_rendus.all %}<div class="border-bottom pb-2 mb-2"><b>{{ c.date }}</b> ({{ c.get_periodicite_display }})<br>{{ c.contenu|linebreaksbr }}
+ {% if c.commentaire %}<div class="alert alert-info mt-1 mb-0 py-1">💬 {{ c.commentaire }}</div>{% endif %}
+ {% if user.role == 'encadrant' %}<form method="post" action="{% url 'cr_comment' c.pk %}" class="mt-1">{% csrf_token %}<input name="commentaire" class="form-control form-control-sm" placeholder="Commenter…" value="{{ c.commentaire }}"><button class="btn btn-sm btn-outline-primary mt-1">Enregistrer</button></form>{% endif %}</div>
+{% empty %}<span class="text-muted">Aucun compte rendu.</span>{% endfor %}
+{% if user.role == 'etudiant' and s.etat == 'en_cours' %}<form method="post" action="{% url 'cr_new' s.pk %}">{% csrf_token %}{{ cr_form.periodicite }}<div class="my-2">{{ cr_form.contenu }}</div><button class="btn btn-sm btn-brand">Déposer</button></form>{% endif %}</div></div>
+
+<div class="row"><div class="col-md-6"><div class="card mb-3"><div class="card-header">Rencontres de suivi</div><div class="card-body">
+{% for r in s.rencontres.all %}<div>{{ r.date|date:"d/m/Y H:i" }} – {{ r.lieu }}</div>{% empty %}<span class="text-muted">Aucune.</span>{% endfor %}
+{% if user.role == 'encadrant' or user.role == 'responsable' %}<form method="post" action="{% url 'rencontre_new' s.pk %}" class="mt-2">{% csrf_token %}{{ rdv_form.date }}{{ rdv_form.lieu }}<button class="btn btn-sm btn-brand mt-1">Planifier</button></form>{% endif %}</div></div></div>
+<div class="col-md-6"><div class="card mb-3"><div class="card-header">Rapport final</div><div class="card-body">
+{% if s.rapport %}<a href="{{ s.rapport.fichier.url }}">Rapport déposé le {{ s.rapport.date_depot|date:"d/m/Y" }}</a>{% else %}<span class="text-muted">Non déposé.</span>{% endif %}
+<br><small>Date limite : {{ s.date_limite_rapport|default:"non définie" }}{% if s.derogation_rapport %} (dérogation){% endif %}</small>
+{% if user.role == 'etudiant' %}<form method="post" action="{% url 'rapport_depot' s.pk %}" enctype="multipart/form-data" class="mt-2">{% csrf_token %}{{ rapport_form.fichier }}<button class="btn btn-sm btn-brand mt-1">Déposer (PDF)</button></form>{% endif %}</div></div></div></div>
+
+<div class="card mb-3"><div class="card-header">Soutenance et évaluation</div><div class="card-body">
+{% if s.soutenance %}{{ s.soutenance.date|date:"d/m/Y H:i" }} – salle {{ s.soutenance.salle }} – jury : {% for j in s.soutenance.jury.all %}{{ j }}{% if not forloop.last %}, {% endif %}{% endfor %}{% else %}<span class="text-muted">Non planifiée.</span>{% endif %}
+<ul class="mt-2">{% for e in evals %}{% if user.role != 'etudiant' or note %}<li>{{ e.get_type_display }} : {{ e.note }}/20</li>{% endif %}{% endfor %}</ul>
+{% if note %}<b>Note finale : {{ note }} / 20</b>{% endif %}</div></div>
+
+<div class="card"><div class="card-header">Messages</div><div class="card-body">
+{% for m in s.messages.all %}<div><b>{{ m.auteur }}</b> <small class="text-muted">{{ m.date|date:"d/m H:i" }}</small> : {{ m.contenu }}</div>{% endfor %}
+<form method="post" action="{% url 'message_new' s.pk %}" class="d-flex gap-2 mt-2">{% csrf_token %}<input name="contenu" class="form-control" required><button class="btn btn-brand">Envoyer</button></form></div></div>
+{% endblock %}
